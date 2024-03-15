@@ -375,8 +375,8 @@ let CreateBulkStudentRecord = async (req, res, next) => {
             createdBy: createdBy,
         });
     }
-    const session = await StudentModel.startSession();
-    session.startTransaction();
+    // const session = await StudentModel.startSession();
+    // session.startTransaction();
     try {
 
         if (studentData.length > 100) {
@@ -454,7 +454,7 @@ let CreateBulkStudentRecord = async (req, res, next) => {
             });
         });
 
-        const createStudent = await StudentModel.create(studentData, { session });
+        const createStudent = await StudentModel.create(studentData);
 
         let admissionFees = checkFeesStr.admissionFees;
         let totalFees = checkFeesStr.totalFees;
@@ -486,24 +486,23 @@ let CreateBulkStudentRecord = async (req, res, next) => {
         }
 
         if (createStudent && studentFeesData.length > 0) {
-            const createStudentFeesData = await FeesCollectionModel.create(studentFeesData, { session });
+            const createStudentFeesData = await FeesCollectionModel.create(studentFeesData);
 
             if (createStudentFeesData) {
-                await session.commitTransaction();
-                session.endSession();
+                // await session.commitTransaction();
+                // session.endSession();
                 return res.status(200).json('Student created successfully.');
             }
         }
 
         // If anything goes wrong, roll back the transaction
-        await session.abortTransaction();
-        session.endSession();
+        // await session.abortTransaction();
+        // session.endSession();
         return res.status(500).json('Error creating student and fees data.');
     } catch (error) {
         // Handle any errors that occurred during the transaction
-        await session.abortTransaction();
-        session.endSession();
-        console.error(error);
+        // await session.abortTransaction();
+        // session.endSession();
         return res.status(500).json('Internal Server Error!');
     }
 }
